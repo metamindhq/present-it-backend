@@ -50,7 +50,7 @@ class SpeakerNoteAndSummaryGenerator(dspy.Module):
 
     def __init__(self):
         super().__init__()
-        self.gen = dspy.ChainOfThought(SpeakerNoteGeneratorSignature)
+        self.gen = dspy.Predict(SpeakerNoteGeneratorSignature)
 
     def forward(self, topic, title, subtitle, content, bullet_points):
         output = self.gen(topic=topic, title=title, subtitle=subtitle, content=content,
