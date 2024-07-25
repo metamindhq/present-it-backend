@@ -20,8 +20,6 @@ RUN poetry config virtualenvs.create false \
 
 COPY . /app
 
-RUN poetry run pytest
-
 EXPOSE 8000
 
 ENV PORT=8000
