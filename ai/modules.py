@@ -2,20 +2,23 @@ import dspy
 
 from ai.signatures import TitleSubtitleGeneratorSignature, ContentGeneratorSignature, BulletPointsGeneratorSignature, \
     SpeakerNoteGeneratorSignature, ImageGenerationPromptGeneratorSignature
+from models.presentation import (PresentationTitleSubtitleInput, PresentationContentInput, PresentationBulletPointsInput \
+    , PresentationSpeakerNoteInput, PresentationImageGenerationPromptInput, PresentationTitleSubtitleOutput \
+    , PresentationContentOutput, PresentationBulletPointsOutput, PresentationSpeakerNoteOutput,
+                                 PresentationImageGenerationPromptOutput)
 
 
 class TitleSubtitleGenerator(dspy.Module):
     def __init__(self):
         super().__init__()
-        self.gen = dspy.ChainOfThought(TitleSubtitleGeneratorSignature)
+        self.gen = dspy.Predict(TitleSubtitleGeneratorSignature)
 
-    def forward(self, topic, target_audience, previous_slide_summaries=None):
-        previous_summaries = None
-        if previous_slide_summaries:
-            # Convert the list of summaries to a string
-            previous_summaries = ",".join(previous_slide_summaries)
-        output = self.gen(topic=topic, target_audience=target_audience, previous_slide_summaries=previous_summaries)
-        return output.title, output.subtitle
+    def forward(self, presentation_input: PresentationTitleSubtitleInput) -> PresentationTitleSubtitleOutput:
+        gen = self.gen(input=presentation_input)
+        return PresentationTitleSubtitleOutput(
+            title=gen.title,
+            subtitle=gen.subtitle
+        )
 
 
 class ContentGenerator(dspy.Module):
@@ -23,24 +26,19 @@ class ContentGenerator(dspy.Module):
         super().__init__()
         self.gen = dspy.Predict(ContentGeneratorSignature)
 
-    def forward(self, topic, target_audience, title, subtitle):
-        output = self.gen(topic=topic, target_audience=target_audience, title=title, subtitle=subtitle)
-        return output.content
+    def forward(self, content_generator_input: PresentationContentInput) -> PresentationContentOutput:
+        gen = self.gen(input=content_generator_input)
+        return PresentationContentOutput(content=gen.content)
 
 
 class BulletPointsGenerator(dspy.Module):
     def __init__(self):
         super().__init__()
-        self.gen = dspy.ChainOfThought(BulletPointsGeneratorSignature)
+        self.gen = dspy.Predict(BulletPointsGeneratorSignature)
 
-    def forward(self, topic, target_audience, title, subtitle, content, previous_bullet_points=None):
-        prev_bullet_points = None
-        if previous_bullet_points:
-            # Convert the list of summaries to a string
-            prev_bullet_points = ",".join(previous_bullet_points)
-        output = self.gen(topic=topic, target_audience=target_audience, title=title, subtitle=subtitle, content=content,
-                          previous_bullet_points=prev_bullet_points)
-        return output.next_bullet_point
+    def forward(self, bullet_points_generator_input: PresentationBulletPointsInput) -> PresentationBulletPointsOutput:
+        gen = self.gen(input=bullet_points_generator_input)
+        return PresentationBulletPointsOutput(next_bullet_point=gen.next_bullet_point)
 
 
 class SpeakerNoteAndSummaryGenerator(dspy.Module):
@@ -50,19 +48,22 @@ class SpeakerNoteAndSummaryGenerator(dspy.Module):
 
     def __init__(self):
         super().__init__()
-        self.gen = dspy.Predict(SpeakerNoteGeneratorSignature)
+        self.gen = dspy.ChainOfThought(SpeakerNoteGeneratorSignature)
 
-    def forward(self, topic, title, subtitle, content, bullet_points):
-        output = self.gen(topic=topic, title=title, subtitle=subtitle, content=content,
-                          bullet_points=",".join(bullet_points))
-        return output.speaker_note, output.summary
+    def forward(self, speaker_note_input: PresentationSpeakerNoteInput) -> PresentationSpeakerNoteOutput:
+        gen = self.gen(input=speaker_note_input)
+        return PresentationSpeakerNoteOutput(
+            speaker_note=gen.speaker_note,
+            summary=gen.summary
+        )
 
 
 class ImageGenerationPromptGenerator(dspy.Module):
     def __init__(self):
         super().__init__()
-        self.gen = dspy.ChainOfThought(ImageGenerationPromptGeneratorSignature)
+        self.gen = dspy.Predict(ImageGenerationPromptGeneratorSignature)
 
-    def forward(self, topic, summary, target_audience, color_scheme):
-        output = self.gen(topic=topic, summary=summary, target_audience=target_audience, color_scheme=color_scheme)
-        return output.image_generation_prompt
+    def forward(self,
+                image_generation_prompt_input: PresentationImageGenerationPromptInput) -> PresentationImageGenerationPromptOutput:
+        gen = self.gen(input=image_generation_prompt_input)
+        return PresentationImageGenerationPromptOutput(image_generation_prompt=gen.image_generation_prompt)

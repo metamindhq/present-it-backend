@@ -1,7 +1,14 @@
 import string
 import random
+
+import weave
+
 from ai.modules import TitleSubtitleGenerator, ContentGenerator, BulletPointsGenerator, SpeakerNoteAndSummaryGenerator \
     , ImageGenerationPromptGenerator
+from models.presentation import (PresentationTitleSubtitleInput, PresentationContentInput,
+                                 PresentationBulletPointsInput,
+                                 PresentationSpeakerNoteInput, PresentationImageGenerationPromptInput)
+
 from models.presentation import PresentationInput, PresentationOutput
 from models.image import ImageGenerationInput, ImageGenerationOutput
 from ai.gen_image import generate_image
@@ -17,6 +24,7 @@ class PresentationManager(object):
         self.image_generation_prompt_generator = ImageGenerationPromptGenerator()
         self.image_loader = image_loader
 
+    @weave.op()
     def generate_next_slide(self, presentation_input: PresentationInput) -> PresentationOutput:
         output = PresentationOutput(
             title="",
@@ -32,59 +40,73 @@ class PresentationManager(object):
 
         presentation_input.current_slide_number += 1
         # Generate the title and subtitle for the slide
-        title, subtitle = self.title_subtitle_generator.forward(
-            topic=presentation_input.topic,
-            target_audience=presentation_input.target_audience,
-            previous_slide_summaries=presentation_input.previous_slides_summaries
-        )
-        output.title = title
-        output.subtitle = subtitle
-
-        # Generate the content for the slide
-        content = self.content_generator.forward(
-            topic=presentation_input.topic,
-            target_audience=presentation_input.target_audience,
-            title=title,
-            subtitle=subtitle
-        )
-        output.content = content
-
-        # Generate 3 bullet points for the slide
-        bullet_points = []
-        for _ in range(3):
-            bullet_point = self.bullet_points_generator.forward(
+        title_subtitle_output = self.title_subtitle_generator.forward(
+            PresentationTitleSubtitleInput(
                 topic=presentation_input.topic,
                 target_audience=presentation_input.target_audience,
-                title=title,
-                subtitle=subtitle,
-                content=content,
-                previous_bullet_points=bullet_points
+                previous_slide_summaries=presentation_input.previous_slides_summaries
             )
-            bullet_points.append(bullet_point)
+        )
+        output.title = title_subtitle_output.title
+        output.subtitle = title_subtitle_output.subtitle
 
-        output.bullet_points = bullet_points
+        # Generate the content for the slide
+        content_output = self.content_generator.forward(
+            PresentationContentInput(
+                topic=presentation_input.topic,
+                target_audience=presentation_input.target_audience,
+                title=output.title,
+                subtitle=output.subtitle
+            )
+        )
+        output.content = content_output.content
+
+        # Generate 3 bullet points for the slide
+        bullet_points: str = ""
+        bullet_points_list = []
+        for _ in range(3):
+            bullet_point_output = self.bullet_points_generator.forward(
+                PresentationBulletPointsInput(
+                    topic=presentation_input.topic,
+                    target_audience=presentation_input.target_audience,
+                    title=output.title,
+                    subtitle=output.subtitle,
+                    content=output.content,
+                    previous_bullet_points=bullet_points
+                )
+            )
+            bullet_points_list.append(bullet_point_output.next_bullet_point)
+            bullet_points += bullet_point_output.next_bullet_point + ","
+
+        output.bullet_points = bullet_points_list
 
         # Generate speaker notes and summary for the slide
-        speaker_note, summary = self.speaker_note_generator.forward(
-            topic=presentation_input.topic,
-            title=title,
-            subtitle=subtitle,
-            content=content,
-            bullet_points=bullet_points
+        speaker_note_output = self.speaker_note_generator.forward(
+            PresentationSpeakerNoteInput(
+                topic=presentation_input.topic,
+                target_audience=presentation_input.target_audience,
+                title=output.title,
+                subtitle=output.subtitle,
+                content=output.content,
+                bullet_points=bullet_points,
+                summaries=presentation_input.previous_slides_summaries
+            )
         )
-        output.speaker_note = speaker_note
-        output.summary = summary
+        output.speaker_note = speaker_note_output.speaker_note
+        output.summary = speaker_note_output.summary
 
         # Generate the image generation prompt for the slide
-        image_generation_prompt = self.image_generation_prompt_generator.forward(
-            topic=presentation_input.topic,
-            summary=summary,
-            target_audience=presentation_input.target_audience,
-            color_scheme=presentation_input.color_scheme
+        image_generation_prompt_output = self.image_generation_prompt_generator.forward(
+            PresentationImageGenerationPromptInput(
+                topic=presentation_input.topic,
+                target_audience=presentation_input.target_audience,
+                summary=output.summary,
+                color_scheme=presentation_input.color_scheme
+            )
         )
 
         # Generate image based on the prompt
-        output.image_generation_prompt = image_generation_prompt
+        output.image_generation_prompt = image_generation_prompt_output.image_generation_prompt
 
         return output
 
