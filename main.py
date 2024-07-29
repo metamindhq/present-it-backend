@@ -7,11 +7,13 @@ from models.image import ImageGenerationInput, ImageGenerationOutput
 from util.imageloader import ImageLoader
 from util.gcp import get_gcp_storage_client
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import weave
 
 # In case of development, load the .env file
 if not os.getenv("ENV") == "production":
     from dotenv import load_dotenv
+
     load_dotenv()
 
 system_prompt = """You are an advanced AI system designed to generate high-quality, professional presentations. For 
@@ -34,6 +36,19 @@ image_loader = ImageLoader(
 )
 
 app = FastAPI()
+
+# Enable CORS
+origins = ["*"]
+methods = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=methods,
+    allow_headers=["*"],
+)
+
 LOGGER = logging.getLogger(__name__)
 weave.init(project_name="dspy-canva-hackathon")
 
@@ -53,4 +68,5 @@ def generate_slides(image_generation_prompt: ImageGenerationInput) -> ImageGener
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app)
