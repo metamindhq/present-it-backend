@@ -26,6 +26,8 @@ class PresentationOutput(BaseModel):
 class PresentationTitleSubtitleInput(BaseModel):
     topic: str = Field(description="Topic or idea of the presentation")
     target_audience: str = Field(description="Intended audience for the presentation")
+    current_slide_number: str = Field(description="Current slide number")
+    total_slides: str = Field(description="Total number of slides in the presentation")
     previous_slide_summaries: str = Field(description="Summary of the previous slides for context",
                                           default=None)
 
@@ -38,17 +40,24 @@ class PresentationTitleSubtitleOutput(BaseModel):
 
 
 class PresentationContentInput(PresentationTitleSubtitleInput):
-    title: str = Field(description="Title of the slide")
-    subtitle: str = Field(description="Subtitle of the slide")
+    title: str = Field(description="Title of the slide, less than 5 words")
+    subtitle: str = Field(description="Subtitle of the slide in less than 10 words")
+    current_slide_number: str = Field(description="Current slide number")
+    total_slides: str = Field(description="Total number of slides in the presentation")
 
 
 class PresentationContentOutput(BaseModel):
-    content: str = Field(description="Generated content for the slide, to be used before presenting bullet points, "
+    content: str = Field(description="Generated content for the slide in less than 50 words, to be used before "
+                                     "presenting bullet points,"
                                      "!!WARNING don't format the texts and don't mention word like this slide, "
                                      "in this presentation")
 
 
-class PresentationBulletPointsInput(PresentationContentInput):
+class PresentationBulletPointsInput(BaseModel):
+    title: str = Field(description="Title of the slide")
+    subtitle: str = Field(description="Subtitle of the slide")
+    topic: str = Field(description="Topic or idea of the presentation")
+    target_audience: str = Field(description="Intended audience for the presentation")
     content: str = Field(description="Content of the slide")
     previous_bullet_points: str = Field(description="Previous bullet points for context if exists, separated by commas",
                                         default=None)
@@ -62,13 +71,15 @@ class PresentationSpeakerNoteInput(PresentationContentInput):
     content: str = Field(description="Content of the slide")
     bullet_points: str = Field(description="Bullet points for the slide")
     summaries: str = Field(description="Summaries of the previous slides for context")
+    current_slide_number: str = Field(description="Current slide number")
+    total_slides: str = Field(description="Total number of slides in the presentation")
 
 
 class PresentationSpeakerNoteOutput(BaseModel):
     speaker_note: str = Field(description="Speaker notes for the slide, this is the content user will read out "
                                           "loud to the audience, be simple and clear !!WARNING don't format "
                                           "the texts")
-    summary: str = Field(description="Summary of the slide content for context and coherence with previous slides")
+    summary: str = Field(description="Summary of the slide content in detail on what it is about")
 
 
 class PresentationImageGenerationPromptInput(BaseModel):

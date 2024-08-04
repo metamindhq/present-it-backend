@@ -44,6 +44,8 @@ class PresentationManager(object):
             PresentationTitleSubtitleInput(
                 topic=presentation_input.topic,
                 target_audience=presentation_input.target_audience,
+                current_slide_number=str(presentation_input.current_slide_number),
+                total_slides=str(presentation_input.total_slides),
                 previous_slide_summaries=presentation_input.previous_slides_summaries
             )
         )
@@ -55,6 +57,8 @@ class PresentationManager(object):
             PresentationContentInput(
                 topic=presentation_input.topic,
                 target_audience=presentation_input.target_audience,
+                current_slide_number=str(presentation_input.current_slide_number),
+                total_slides=str(presentation_input.total_slides),
                 title=output.title,
                 subtitle=output.subtitle
             )
@@ -89,7 +93,9 @@ class PresentationManager(object):
                 subtitle=output.subtitle,
                 content=output.content,
                 bullet_points=bullet_points,
-                summaries=presentation_input.previous_slides_summaries
+                summaries=presentation_input.previous_slides_summaries,
+                current_slide_number=str(presentation_input.current_slide_number),
+                total_slides=str(presentation_input.total_slides)
             )
         )
         output.speaker_note = speaker_note_output.speaker_note

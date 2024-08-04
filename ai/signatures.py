@@ -9,11 +9,13 @@ class TitleSubtitleGeneratorSignature(dspy.Signature):
     Generate a title and subtitle for a presentation slide based on the main topic and context.
     """
     input: PresentationTitleSubtitleInput = dspy.InputField()
-    title: str = dspy.OutputField(desc="Think of a unique, catchy title for the slide with the main idea !!WARNING "
-                                       "don't"
-                                       "format the texts")
-    subtitle: str = dspy.OutputField(desc="Think of a subtitle that complements the title and provides more context "
-                                          "!!WARNING don't format the texts")
+    title: str = dspy.OutputField(
+        desc="Think of a unique, catchy title under 5 words for the slide with the main idea !!WARNING "
+             "don't"
+             "format the texts")
+    subtitle: str = dspy.OutputField(
+        desc="Think of a subtitle that complements the title and provides more context under 5 words"
+             "!!WARNING don't format the texts")
 
 
 class ContentGeneratorSignature(dspy.Signature):
@@ -21,9 +23,10 @@ class ContentGeneratorSignature(dspy.Signature):
     Generate content for a presentation slide based on the main topic and context.
     """
     input: PresentationContentInput = dspy.InputField()
-    content: str = dspy.OutputField(desc="Generated content for the slide, to be used before presenting bullet points, "
-                                         "!!WARNING don't format the texts and don't mention word like this slide, "
-                                         "in this presentation")
+    content: str = dspy.OutputField(
+        desc="Generated content for the slide, to be used before presenting bullet points, under 50 words"
+             "!!WARNING don't format the texts and don't mention word like this slide, "
+             "in this presentation")
 
 
 class BulletPointsGeneratorSignature(dspy.Signature):
@@ -42,6 +45,13 @@ class SpeakerNoteGeneratorSignature(dspy.Signature):
     speaker_note: str = dspy.OutputField(desc="Speaker notes for the slide, this is the content user will read out "
                                               "loud to the audience, be simple and clear !!WARNING don't format the "
                                               "texts. Complete the text with the main idea of the slide")
+
+
+class SummaryGeneratorSignature(dspy.Signature):
+    """
+    Generate a summary for a presentation slide based on the main topic and context.
+    """
+    input: PresentationSpeakerNoteInput = dspy.InputField()
     summary: str = dspy.OutputField(
         desc="Summary of the slide content for context and coherence with previous slides. Complete the text with the "
              "main idea of the slide")

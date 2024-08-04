@@ -1,7 +1,7 @@
 import dspy
 
 from ai.signatures import TitleSubtitleGeneratorSignature, ContentGeneratorSignature, BulletPointsGeneratorSignature, \
-    SpeakerNoteGeneratorSignature, ImageGenerationPromptGeneratorSignature
+    SpeakerNoteGeneratorSignature, ImageGenerationPromptGeneratorSignature, SummaryGeneratorSignature
 from models.presentation import (PresentationTitleSubtitleInput, PresentationContentInput, PresentationBulletPointsInput \
     , PresentationSpeakerNoteInput, PresentationImageGenerationPromptInput, PresentationTitleSubtitleOutput \
     , PresentationContentOutput, PresentationBulletPointsOutput, PresentationSpeakerNoteOutput,
@@ -32,6 +32,9 @@ class ContentGenerator(dspy.Module):
 
 
 class BulletPointsGenerator(dspy.Module):
+    """
+    Generate bullet points for a presentation slide based on the main topic and context.
+    """
     def __init__(self):
         super().__init__()
         self.gen = dspy.Predict(BulletPointsGeneratorSignature)
@@ -48,13 +51,16 @@ class SpeakerNoteAndSummaryGenerator(dspy.Module):
 
     def __init__(self):
         super().__init__()
-        self.gen = dspy.ChainOfThought(SpeakerNoteGeneratorSignature)
+        self.speaker_note = dspy.Predict(SpeakerNoteGeneratorSignature)
+        self.summary = dspy.Predict(SummaryGeneratorSignature)
 
     def forward(self, speaker_note_input: PresentationSpeakerNoteInput) -> PresentationSpeakerNoteOutput:
-        gen = self.gen(input=speaker_note_input)
+        speaker_note = self.speaker_note(input=speaker_note_input)
+        summary = self.summary(input=speaker_note_input)
+
         return PresentationSpeakerNoteOutput(
-            speaker_note=gen.speaker_note,
-            summary=gen.summary
+            speaker_note=speaker_note.speaker_note,
+            summary=summary.summary
         )
 
 

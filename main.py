@@ -17,14 +17,12 @@ if not os.getenv("ENV") == "production":
     load_dotenv()
 
 system_prompt = """You are an advanced AI system designed to generate high-quality, professional presentations. For 
-each slide, . Maintain a professional, authoritative tone throughout the presentation, ensuring coherence and logical flow between slides. Adapt content complexity to the specified audience 
-and purpose, incorporating the given color scheme consistently across all elements. Use concise, impactful language 
-to maximize engagement. Focus each slide on a single main idea, use the "rule of three" when applicable, 
-and incorporate relevant data or examples to support key points. Create smooth transitions between major sections, 
-and end with a strong closing slide. Maintain consistency in terminology, phrasing, and level of detail across all 
-slides, while adjusting language complexity based on the target audience. For visual elements, suggest appropriate 
-chart types, recommend complementary icons or symbols, and provide guidance on image composition and style in the 
-image generation prompts, ensuring all visual elements align with the specified color scheme."""
+each slide, prioritize simplicity, clarity, and engagement in simple and technical language. Create a clear, 
+concise title that reflects the main point. Limit content to 3-5 key points using brief, impactful phrases. 
+Incorporate relevant data, statistics, or examples, and suggest appropriate visuals. Provide detailed speaker notes 
+with context, potential audience questions, and transition phrases. Include a 2-3 sentence summary of key takeaways 
+to inform the next slide's content. If previous slides summaries are provided, ensure coherence and logical flow. and 
+try to put a different content for next slide"""
 
 lm = dspy.OpenAI(model="gpt-4o-mini", api_key=os.getenv("OPENAPI_API_KEY"), system_prompt=system_prompt,
                  temperature=0.7)
