@@ -14,8 +14,46 @@ from models.presentation import (PresentationTitleSubtitleInput, PresentationCon
 
 from models.presentation import PresentationInput, PresentationOutput
 from models.image import ImageGenerationInput, ImageGenerationOutput
-from ai.gen_image import generate_image
+from ai.gen_image import generate_image, gen_image_replicate
 from util.imageloader import ImageLoader
+
+
+@weave.op()
+def generate_next_slide_using_openai(presentation_input: PresentationInput, client: OpenAI) -> PresentationOutput:
+    system_prompt = get_dynamic_slide_gen_system_message(
+        genre=presentation_input.target_audience,
+        theme=presentation_input.color_scheme,
+        summary=presentation_input.previous_slides_summaries,
+        offset=presentation_input.current_slide_number,
+        total_slides=presentation_input.total_slides
+    )
+    completion = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": presentation_input.topic}
+        ],
+        temperature=0.5,
+        max_tokens=1024,
+        top_p=0.5,
+        frequency_penalty=2,
+        presence_penalty=2,
+        response_format={
+            "type": "json_object"
+        }
+    )
+    resp = json.loads(completion.choices[0].message.content)
+    output = PresentationOutput(
+        title=resp['title'],
+        subtitle=resp['subtitle'],
+        content=resp['content'],
+        bullet_points=resp['bullet_points'],
+        speaker_note=resp['speaker_note'],
+        summary=resp['summary'],
+        image_generation_prompt=resp['image_generation_prompt']
+    )
+    return output
+
 
 class PresentationManager(object):
     def __init__(self, image_loader: ImageLoader):
@@ -119,9 +157,10 @@ class PresentationManager(object):
         return output
 
     def generate_image_by_prompt(self, image_generation_prompt: ImageGenerationInput) -> ImageGenerationOutput:
-        image_path = generate_image(image_generation_prompt.image_generation_prompt)
+        image_url = gen_image_replicate(image_generation_prompt.image_generation_prompt)
+
         file_name = ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(6))
-        image_url = self.image_loader.upload_to_gcp_object_store(image_path, f"images/{file_name}.webp")
+        image_url = self.image_loader.upload_uri_to_gcp_object_store(image_url)
         return ImageGenerationOutput(
             image_generation_prompt=image_generation_prompt.image_generation_prompt,
             image_public_url=image_url
