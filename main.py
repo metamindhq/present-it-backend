@@ -67,7 +67,7 @@ def generate_slides(image_generation_prompt: ImageGenerationInput) -> ImageGener
     return presentation_manager.generate_image_by_prompt(image_generation_prompt)
 
 @app.post("/openai/generate")
-def generate_slides(presentation_input: PresentationInput):
+def generate_slides(presentation_input: PresentationInput) -> PresentationOutput:
     return presentation_manager.generate_next_slide_using_openai(presentation_input, client)
 
 
