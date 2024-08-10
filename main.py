@@ -3,7 +3,7 @@ import os
 import logging
 
 from openai import OpenAI
-from presentation import PresentationManager
+from presentation import PresentationManager, generate_next_slide_using_openai
 from presentation import PresentationInput, PresentationOutput
 from models.image import ImageGenerationInput, ImageGenerationOutput
 from util.imageloader import ImageLoader
@@ -15,6 +15,7 @@ import weave
 # In case of development, load the .env file
 if not os.getenv("ENV") == "production":
     from dotenv import load_dotenv
+
     load_dotenv()
 
 system_prompt = """You are an advanced AI system designed to generate high-quality, professional presentations. For 
@@ -66,9 +67,10 @@ def generate_slides(presentation_input: PresentationInput) -> PresentationOutput
 def generate_slides(image_generation_prompt: ImageGenerationInput) -> ImageGenerationOutput:
     return presentation_manager.generate_image_by_prompt(image_generation_prompt)
 
+
 @app.post("/openai/generate")
-def generate_slides(presentation_input: PresentationInput) -> PresentationOutput:
-    return presentation_manager.generate_next_slide_using_openai(presentation_input, client)
+def generate_slides(presentation_input: PresentationInput):
+    return generate_next_slide_using_openai(presentation_input, client)
 
 
 if __name__ == "__main__":
