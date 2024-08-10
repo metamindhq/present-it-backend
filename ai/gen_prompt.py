@@ -1,4 +1,5 @@
 def get_dynamic_slide_gen_system_message(
+        topic: str,
         genre: str,
         theme: str,
         summary: str,
@@ -31,4 +32,6 @@ Follow the below provided JSON format for the slide content:
   "summary": "string",  # 30-40 words, summarizes the team’s role in F1, no unrelated history
   "image_generation_prompt": "string"  # 80-100 words, describing a visual theme relevant to the team, based on {theme}
 }}
+
+User Prompt: {topic}
 """

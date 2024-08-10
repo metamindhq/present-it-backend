@@ -168,6 +168,7 @@ class PresentationManager(object):
     
     def generate_next_slide_using_openai(self, presentation_input: PresentationInput, client: OpenAI) -> PresentationOutput:
         system_prompt = get_dynamic_slide_gen_system_message(
+            topic=presentation_input.topic,
             genre=presentation_input.target_audience,
             theme=presentation_input.color_scheme,
             summary=presentation_input.previous_slides_summaries,
@@ -177,8 +178,7 @@ class PresentationManager(object):
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": presentation_input.topic}
+                {"role": "user", "content": system_prompt}
             ],
             temperature=0.8,
             max_tokens=2048,
