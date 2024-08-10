@@ -13,6 +13,10 @@ You are a bot that creates presentation slides. Follow the instructions exactly 
 
 Genre: {genre}
 
+Previous Slides Content:
+
+{summary}
+
 **Respond with content for slide:** {offset} of {total_slides}
 
 Follow the below provided JSON format for the slide content:
@@ -27,8 +31,4 @@ Follow the below provided JSON format for the slide content:
   "summary": "string",  # 30-40 words, summarizes the team’s role in F1, no unrelated history
   "image_generation_prompt": "string"  # 80-100 words, describing a visual theme relevant to the team, based on {theme}
 }}
-
-Previous Slides Summary:
-
-{summary}
 """
