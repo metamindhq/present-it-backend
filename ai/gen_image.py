@@ -1,4 +1,5 @@
 from gradio_client import Client
+import replicate
 
 
 def generate_image(prompt: str):
@@ -30,3 +31,21 @@ def generate_image(prompt: str):
     image_path = result[0]
 
     return image_path
+
+
+def gen_image_replicate(prompt: str) -> str:
+    retry_count = 3
+    while retry_count > 0:
+        try:
+            inp = {
+                "prompt": prompt,
+                "output_quality": 100
+            }
+            image_uri = replicate.run(
+                "black-forest-labs/flux-schnell",
+                input=inp
+            )
+            return image_uri[0]
+        except Exception as e:
+            print(e)
+            retry_count -= 1
