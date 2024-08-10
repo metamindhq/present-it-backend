@@ -20,7 +20,7 @@ class PresentationOutput(BaseModel):
     bullet_points: list[str]
     speaker_note: str
     summary: str
-    image_generation_prompt: str 
+    image_generation_prompt: str
 
 
 class PresentationTitleSubtitleInput(BaseModel):
