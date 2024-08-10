@@ -39,7 +39,7 @@ def gen_image_replicate(prompt: str) -> str:
         try:
             inp = {
                 "prompt": prompt,
-                "output_quality": 90
+                "output_quality": 100
             }
             image_uri = replicate.run(
                 "black-forest-labs/flux-schnell",
