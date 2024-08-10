@@ -3,7 +3,7 @@ import replicate
 
 
 def generate_image(prompt: str):
-    client = Client("black-forest-labs/FLUX.1-schnell")
+    client = Client("black-forest-labs/FLUX.1-dev")
     result = client.predict(
         prompt=prompt,
         seed=0,
@@ -42,7 +42,7 @@ def gen_image_replicate(prompt: str) -> str:
                 "output_quality": 100
             }
             image_uri = replicate.run(
-                "black-forest-labs/flux-schnell",
+                "black-forest-labs/flux-dev",
                 input=inp
             )
             return image_uri[0]
