@@ -21,6 +21,7 @@ from util.imageloader import ImageLoader
 @weave.op()
 def generate_next_slide_using_openai(presentation_input: PresentationInput, client: OpenAI) -> PresentationOutput:
     system_prompt = get_dynamic_slide_gen_system_message(
+        topic=presentation_input.topic,
         genre=presentation_input.target_audience,
         theme=presentation_input.color_scheme,
         summary=presentation_input.previous_slides_summaries,
@@ -29,15 +30,14 @@ def generate_next_slide_using_openai(presentation_input: PresentationInput, clie
     )
     completion = client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": presentation_input.topic}
+        messages=[ 
+            {"role": "user", "content": system_prompt}
         ],
-        temperature=0.5,
+        temperature=0.8,
         max_tokens=1024,
-        top_p=0.5,
-        frequency_penalty=2,
-        presence_penalty=2,
+        top_p=0.75,
+        frequency_penalty=0.75,
+        presence_penalty=0.75,
         response_format={
             "type": "json_object"
         }
@@ -165,38 +165,3 @@ class PresentationManager(object):
             image_generation_prompt=image_generation_prompt.image_generation_prompt,
             image_public_url=image_url
         )
-    
-    def generate_next_slide_using_openai(self, presentation_input: PresentationInput, client: OpenAI) -> PresentationOutput:
-        system_prompt = get_dynamic_slide_gen_system_message(
-            topic=presentation_input.topic,
-            genre=presentation_input.target_audience,
-            theme=presentation_input.color_scheme,
-            summary=presentation_input.previous_slides_summaries,
-            offset=presentation_input.current_slide_number,
-            total_slides=presentation_input.total_slides
-        ) 
-        completion = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "user", "content": system_prompt}
-            ],
-            temperature=0.8,
-            max_tokens=2048,
-            top_p=0.8,
-            frequency_penalty=0.8,
-            presence_penalty=0.8,
-            response_format={
-                "type": "json_object"
-            }
-        )
-        resp = json.loads(completion.choices[0].message.content)
-        output = PresentationOutput(
-            title=resp['title'],
-            subtitle=resp['subtitle'],
-            content=resp['content'],
-            bullet_points=resp['bullet_points'],
-            speaker_note=resp['speaker_note'],
-            summary=resp['summary'],
-            image_generation_prompt=resp['image_generation_prompt']
-        )
-        return output

@@ -6,6 +6,7 @@ def get_dynamic_slide_gen_system_message(
         offset: int,
         total_slides: int
 ):
+    print(topic)
     return f"""
 You are a bot that creates presentation slides. Follow the instructions exactly as given. 
 
