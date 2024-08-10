@@ -158,8 +158,9 @@ class PresentationManager(object):
 
     def generate_image_by_prompt(self, image_generation_prompt: ImageGenerationInput) -> ImageGenerationOutput:
         image_url = gen_image_replicate(image_generation_prompt.image_generation_prompt)
+
         file_name = ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(6))
-        # image_url = self.image_loader.upload_to_gcp_object_store(image_path, f"images/{file_name}.webp")
+        image_url = self.image_loader.upload_uri_to_gcp_object_store(image_url)
         return ImageGenerationOutput(
             image_generation_prompt=image_generation_prompt.image_generation_prompt,
             image_public_url=image_url
