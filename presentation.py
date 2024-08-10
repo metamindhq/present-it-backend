@@ -134,18 +134,18 @@ class PresentationManager(object):
             summary=presentation_input.previous_slides_summaries,
             offset=presentation_input.current_slide_number,
             total_slides=presentation_input.total_slides
-        )
+        ) 
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": presentation_input.topic}
             ],
-            temperature=0.5,
-            max_tokens=1024,
-            top_p=0.5,
-            frequency_penalty=2,
-            presence_penalty=2,
+            temperature=0.8,
+            max_tokens=2048,
+            top_p=0.8,
+            frequency_penalty=0.8,
+            presence_penalty=0.8,
             response_format={
                 "type": "json_object"
             }
