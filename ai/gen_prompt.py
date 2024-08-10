@@ -1,10 +1,12 @@
 def get_dynamic_slide_gen_system_message(
+        topic: str,
         genre: str,
         theme: str,
         summary: str,
         offset: int,
         total_slides: int
 ):
+    print(topic)
     return f"""
 You are a bot that creates presentation slides. Follow the instructions exactly as given. 
 
@@ -12,6 +14,10 @@ You are a bot that creates presentation slides. Follow the instructions exactly 
 - **Each slide must cover a different specific topic directly related to the main subject.**
 
 Genre: {genre}
+
+Previous Slides Content:
+
+{summary}
 
 **Respond with content for slide:** {offset} of {total_slides}
 
@@ -28,7 +34,5 @@ Follow the below provided JSON format for the slide content:
   "image_generation_prompt": "string"  # 80-100 words, describing a visual theme relevant to the team, based on {theme}
 }}
 
-Previous Slides Summary:
-
-{summary}
+User Prompt: {topic}
 """
