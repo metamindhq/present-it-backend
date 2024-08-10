@@ -32,7 +32,7 @@ def generate_next_slide_using_openai(presentation_input: PresentationInput, clie
         model="gpt-4o-mini",
         messages=[ 
             {"role": "system", "content": system_prompt},
-            {"role": "assistant", "content": presentation_input.previous_slides_summaries},
+            {"role": "assistant", "content": "\nPrevious Slide Summaries:\n"+ presentation_input.previous_slides_summaries},
             {"role": "user", "content": presentation_input.topic},
         ],
         temperature=0.8,
