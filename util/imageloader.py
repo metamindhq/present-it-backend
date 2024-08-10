@@ -25,10 +25,9 @@ class ImageLoader(object):
     def upload_uri_to_gcp_object_store(self, image_uri) -> str:
         file_name = ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(6))
         try:
-            # download image from uri and load it to gcp object store
             image = requests.get(image_uri)
             blob = self.bucket.blob(f"images/{file_name}.webp")
-            blob.upload_from_string(image.content)
+            blob.upload_from_string(image.content, content_type="image/webp")
             blob.make_public()
         except FileNotFoundError:
             LOGGER.error(f"File not found: {image_uri}")
