@@ -5,19 +5,15 @@ def get_dynamic_slide_gen_system_message(
         summary: str,
         offset: int,
         total_slides: int
-):
-    print(topic)
+): 
     return f"""
 You are a bot that creates presentation slides. Follow the instructions exactly as given. 
 
-- **Focus strictly on the specified topic. Do not include irrelevant or historical information unless explicitly asked.**
-- **Each slide must cover a different specific topic directly related to the main subject.**
+- Focus strictly on the specified topic. Do not include irrelevant or historical information unless explicitly asked.
+- Each slide must cover a different specific topic directly related to the main subject.
+- If total slides are more than 5, maintain coherence and logical flow between slides and avoid repetition.
 
 Genre: {genre}
-
-Previous Slides Content:
-
-{summary}
 
 **Respond with content for slide:** {offset} of {total_slides}
 
@@ -31,8 +27,6 @@ Follow the below provided JSON format for the slide content:
   ],
   "speaker_note": "string",  # Brief, relevant note that strictly explains the slide content
   "summary": "string",  # 30-40 words, summarizes the team’s role in F1, no unrelated history
-  "image_generation_prompt": "string"  # 80-100 words, describing a visual theme relevant to the team, based on {theme}
+  "image_generation_prompt": "string",  # 80-100 words, describing a visual theme relevant to the team, based on {theme} 
 }}
-
-User Prompt: {topic}
 """

@@ -31,7 +31,9 @@ def generate_next_slide_using_openai(presentation_input: PresentationInput, clie
     completion = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[ 
-            {"role": "user", "content": system_prompt}
+            {"role": "system", "content": system_prompt},
+            {"role": "assistant", "content": presentation_input.previous_slides_summaries},
+            {"role": "user", "content": presentation_input.topic},
         ],
         temperature=0.8,
         max_tokens=1024,
@@ -50,7 +52,7 @@ def generate_next_slide_using_openai(presentation_input: PresentationInput, clie
         bullet_points=resp['bullet_points'],
         speaker_note=resp['speaker_note'],
         summary=resp['summary'],
-        image_generation_prompt=resp['image_generation_prompt']
+        image_generation_prompt=resp['image_generation_prompt'], 
     )
     return output
 
