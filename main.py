@@ -15,7 +15,6 @@ import weave
 # In case of development, load the .env file
 if not os.getenv("ENV") == "production":
     from dotenv import load_dotenv
-
     load_dotenv()
 
 system_prompt = """You are an advanced AI system designed to generate high-quality, professional presentations. For 
@@ -54,7 +53,8 @@ weave.init(project_name="dspy-canva-hackathon")
 
 presentation_manager = PresentationManager(image_loader)
 
-client = OpenAI()
+client = OpenAI(api_key=os.getenv("OPENAPI_API_KEY"))
+
 
 @app.post("/generate")
 def generate_slides(presentation_input: PresentationInput) -> PresentationOutput:
