@@ -6,14 +6,15 @@ from openai import OpenAI
 from presentation import PresentationManager, generate_next_slide_using_openai
 from presentation import PresentationInput, PresentationOutput
 from models.image import ImageGenerationInput, ImageGenerationOutput
-from util.imageloader import ImageLoader
+from models.audio import PresentationAudioInput, PresentationAudioOutput
+from util.fileloader import FileLoader
 from util.gcp import get_gcp_storage_client
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import weave
 
 # In case of development, load the .env file
-if not os.getenv("ENV") == "production":
+if not os.getenv("ENV") == "development":
     from dotenv import load_dotenv
 
     load_dotenv()
@@ -30,7 +31,7 @@ lm = dspy.OpenAI(model="gpt-4o-mini", api_key=os.getenv("OPENAPI_API_KEY"), syst
                  temperature=0.7)
 dspy.settings.configure(lm=lm)
 dspy.settings.experimental = True
-image_loader = ImageLoader(
+image_loader = FileLoader(
     bucket_name=os.getenv("GCP_OBJECT_STORE_BUCKET"),
     storage_client=get_gcp_storage_client(os.getenv("GCP_PROJECT_ID"))
 )
@@ -57,10 +58,9 @@ presentation_manager = PresentationManager(image_loader)
 client = OpenAI(api_key=os.getenv("OPENAPI_API_KEY"))
 
 
-@app.post("/generate")
-def generate_slides(presentation_input: PresentationInput) -> PresentationOutput:
-    slide = presentation_manager.generate_next_slide(presentation_input)
-    return slide
+@app.post("/openai/generate")
+def generate_slides(presentation_input: PresentationInput):
+    return generate_next_slide_using_openai(presentation_input, client)
 
 
 @app.post("/generate/image")
@@ -68,9 +68,15 @@ def generate_slides(image_generation_prompt: ImageGenerationInput) -> ImageGener
     return presentation_manager.generate_image_by_prompt(image_generation_prompt)
 
 
-@app.post("/openai/generate")
-def generate_slides(presentation_input: PresentationInput):
-    return generate_next_slide_using_openai(presentation_input, client)
+@app.post("/generate/audio")
+def generate_audio(audio_generation_prompt: PresentationAudioInput) -> PresentationAudioOutput:
+    return presentation_manager.generate_audio_by_prompt(audio_generation_prompt)
+
+
+@app.post("/generate", deprecated=True)
+def generate_slides(presentation_input: PresentationInput) -> PresentationOutput:
+    slide = presentation_manager.generate_next_slide(presentation_input)
+    return slide
 
 
 if __name__ == "__main__":

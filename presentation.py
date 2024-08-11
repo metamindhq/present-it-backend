@@ -1,6 +1,4 @@
 import json
-import string
-import random
 
 from openai import OpenAI
 import weave
@@ -14,8 +12,14 @@ from models.presentation import (PresentationTitleSubtitleInput, PresentationCon
 
 from models.presentation import PresentationInput, PresentationOutput
 from models.image import ImageGenerationInput, ImageGenerationOutput
+from models.audio import PresentationAudioInput, PresentationAudioOutput
 from ai.gen_image import generate_image, gen_image_replicate
-from util.imageloader import ImageLoader
+from ai.gen_audio import generate_audio
+from util.fileloader import FileLoader
+
+
+def clean_prompt_for_audio(prompt: str) -> str:
+    return "".join([c for c in prompt if c.isalnum() or c.isspace() or c in [".", ",", "!", "?", ":"]])
 
 
 @weave.op()
@@ -30,8 +34,8 @@ def generate_next_slide_using_openai(presentation_input: PresentationInput, clie
     )
     completion = client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[ 
-            {"role": "user", "content": system_prompt}, 
+        messages=[
+            {"role": "user", "content": system_prompt},
             {"role": "user", "content": presentation_input.topic},
         ],
         temperature=0.7,
@@ -51,19 +55,19 @@ def generate_next_slide_using_openai(presentation_input: PresentationInput, clie
         bullet_points=resp['bullet_points'],
         speaker_note=resp['speaker_note'],
         summary=resp['summary'],
-        image_generation_prompt=resp['image_generation_prompt'], 
+        image_generation_prompt=resp['image_generation_prompt'],
     )
     return output
 
 
 class PresentationManager(object):
-    def __init__(self, image_loader: ImageLoader):
+    def __init__(self, file_loader: FileLoader):
         self.title_subtitle_generator = TitleSubtitleGenerator()
         self.content_generator = ContentGenerator()
         self.bullet_points_generator = BulletPointsGenerator()
         self.speaker_note_generator = SpeakerNoteAndSummaryGenerator()
         self.image_generation_prompt_generator = ImageGenerationPromptGenerator()
-        self.image_loader = image_loader
+        self.file_loader = file_loader
 
     @weave.op()
     def generate_next_slide(self, presentation_input: PresentationInput) -> PresentationOutput:
@@ -159,10 +163,20 @@ class PresentationManager(object):
 
     def generate_image_by_prompt(self, image_generation_prompt: ImageGenerationInput) -> ImageGenerationOutput:
         image_url = gen_image_replicate(image_generation_prompt.image_generation_prompt)
-
-        file_name = ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(6))
-        image_url = self.image_loader.upload_uri_to_gcp_object_store(image_url)
+        image_url = self.file_loader.upload_image_uri_to_gcp_object_store(image_url)
         return ImageGenerationOutput(
             image_generation_prompt=image_generation_prompt.image_generation_prompt,
             image_public_url=image_url
+        )
+
+    def generate_audio_by_prompt(self, audio_generation_prompt: PresentationAudioInput) -> PresentationAudioOutput:
+        audio_prompt = clean_prompt_for_audio(audio_generation_prompt.audio_generation_prompt)
+        audio_content = generate_audio(audio_prompt,
+                                       audio_generation_prompt.audio_voice)
+        audio_url = self.file_loader.upload_audio_to_gcp_object_store(audio_content)
+
+        return PresentationAudioOutput(
+            audio_generation_prompt=audio_prompt,
+            audio_voice=audio_generation_prompt.audio_voice,
+            audio_public_url=audio_url
         )
