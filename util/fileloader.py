@@ -2,6 +2,9 @@ import logging
 import requests
 import random
 import string
+from mutagen.mp3 import MP3
+import io
+import math
 
 
 LOGGER = logging.getLogger(__name__)
@@ -35,9 +38,11 @@ class FileLoader(object):
 
         return f"https://storage.googleapis.com/{self.bucket.name}/images/{file_name}.webp"
 
-    def upload_audio_to_gcp_object_store(self, audio_bytes) -> str:
+    def upload_audio_to_gcp_object_store(self, audio_bytes) -> (int, str):
         file_name = ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(6))
         try:
+            mp3_file_len = math.ceil(MP3(io.BytesIO(audio_bytes)).info.length)
+            # get the audio duration
             blob = self.bucket.blob(f"audio/{file_name}.mp3")
             blob.upload_from_string(audio_bytes, content_type="audio/mpeg")
             blob.make_public()
@@ -45,4 +50,4 @@ class FileLoader(object):
             LOGGER.error(f"File not found: {audio_bytes}")
             raise FileNotFoundError(f"File not found: {audio_bytes}")
 
-        return f"https://storage.googleapis.com/{self.bucket.name}/audio/{file_name}.mp3"
+        return mp3_file_len, f"https://storage.googleapis.com/{self.bucket.name}/audio/{file_name}.mp3"
