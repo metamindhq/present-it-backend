@@ -29,7 +29,7 @@ Follow the below provided JSON format for the slide content:
   "bullet_points": [
     "string",  # 2-3 points, 10-20 words each, directly related to the topic
   ],
-  "speaker_note": "string",  # 80-100 words relevant note that explains the slide content without starting with 'This slide...'
+  "speaker_note": "string",  # 30-40 words relevant note that explains the slide content without starting with 'This slide...'
   "summary": "string",  # 30-40 words, summarizes the slide content no unrelated history
   "image_generation_prompt": "string",  # 10-20 words, based on {theme} 
 }}
