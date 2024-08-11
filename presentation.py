@@ -31,15 +31,14 @@ def generate_next_slide_using_openai(presentation_input: PresentationInput, clie
     completion = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[ 
-            {"role": "system", "content": system_prompt},
-            {"role": "assistant", "content": "\nPrevious Slide Summaries:\n"+ presentation_input.previous_slides_summaries},
+            {"role": "user", "content": system_prompt}, 
             {"role": "user", "content": presentation_input.topic},
         ],
-        temperature=0.8,
-        max_tokens=1024,
-        top_p=0.75,
-        frequency_penalty=0.75,
-        presence_penalty=0.75,
+        temperature=0.7,
+        max_tokens=2048,
+        top_p=0.9,
+        frequency_penalty=0.2,
+        presence_penalty=0.2,
         response_format={
             "type": "json_object"
         }
