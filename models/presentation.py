@@ -6,7 +6,7 @@ class PresentationInputBase(BaseModel):
     color_scheme: str
     target_audience: str
     total_slides: int = 5
-    current_slide_number: int = 0
+    current_slide_number: int = 1
 
 
 class PresentationInput(PresentationInputBase):
