@@ -23,14 +23,14 @@ Respond with content for slide: {offset} of {total_slides}
 
 Follow the below provided JSON format for the slide content:
 {{
-  "title": "string",  # strictly 2-5 words, specific to the team or topic
+  "title": "string",  # strictly 2-5 words, specific to the topic
   "subtitle": "string",  # 4-7 words, relevant to the slide's focus
-  "content": "string",  # 30-40 words, detailed and specific to the team's involvement in F1
+  "content": "string",  # 30-40 words, detailed and specific to the slide's topic
   "bullet_points": [
-    "string",  # 2-3 points, 10-20 words each, directly related to the team or topic
+    "string",  # 2-3 points, 10-20 words each, directly related to the topic
   ],
   "speaker_note": "string",  # Brief, relevant note that strictly explains the slide content
-  "summary": "string",  # 30-40 words, summarizes the team’s role in F1, no unrelated history
-  "image_generation_prompt": "string",  # 80-100 words, describing a visual theme relevant to the team, based on {theme} 
+  "summary": "string",  # 30-40 words, summarizes the slide content no unrelated history
+  "image_generation_prompt": "string",  # 10-20 words, based on {theme} 
 }}
 """
