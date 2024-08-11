@@ -173,10 +173,14 @@ class PresentationManager(object):
         audio_prompt = clean_prompt_for_audio(audio_generation_prompt.audio_generation_prompt)
         audio_content = generate_audio(audio_prompt,
                                        audio_generation_prompt.audio_voice)
-        audio_url = self.file_loader.upload_audio_to_gcp_object_store(audio_content)
+        audio_len, audio_url = self.file_loader.upload_audio_to_gcp_object_store(audio_content)
 
         return PresentationAudioOutput(
             audio_generation_prompt=audio_prompt,
             audio_voice=audio_generation_prompt.audio_voice,
-            audio_public_url=audio_url
+            audio_public_url=audio_url,
+            audio_length_in_sec=audio_len,
+            audio_length=audio_len,
+            speed=audio_generation_prompt.speed,
+            pitch=audio_generation_prompt.pitch
         )
