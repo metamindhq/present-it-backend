@@ -4,7 +4,7 @@ import os
 url = "https://api.v7.unrealspeech.com/stream"
 
 
-def generate_audio(prompt: str, voice: str, speed: int = 0, pitch: int = 1):
+def generate_audio(prompt: str, voice: str, speed: float, pitch: float):
     available_voices = ["Scarlett", "Dan", "Liv", "Will", "Amy"]
     if voice not in available_voices:
         raise ValueError(f"Voice {voice} is not available. Available voices are {available_voices}")
